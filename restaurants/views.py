@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from .models import Restaurant
 from .forms import RestaurantForm
-from .forms import UserRegister
-from django.contrib.auth import login
+from .forms import SignupForm
+from .forms import SigninForm
+
+
+from django.contrib.auth import login, authenticate
 from django.contrib.auth import logout
 
 
@@ -16,19 +19,19 @@ def signup(request):
             user.save()
 
             login(request,user)
-            return redirect("signin.html")
+            return redirect("restaurant-list")
 
     context = {
         "form":form,
 
     }
-    return render(request, 'signup', context)
+    return render(request, 'signup.html', context)
 
 
 def signin(request):
     form = SigninForm()
-    if request.method() == 'POST':
-        form = UserLogin(request.POST)
+    if request.method == 'POST':
+        form = SigninForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -36,15 +39,15 @@ def signin(request):
             auth_user = authenticate(username=username, password=password)
             if auth_user is not None:
                 login(request,auth_user)
-                return redirect('signin')
+                return redirect('restaurant-list')
     context = {
         "form":form
     }
-    return render(request, 'signin', context)
+    return render(request, 'signin.html', context)
 
 def signout(request):
     logout(request)
-    return redirect("signout")
+    return redirect("restaurant-list")
 
 def restaurant_list(request):
     context = {
